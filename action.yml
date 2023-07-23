@@ -1,11 +1,10 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'install-futhark-action'
+description: 'Install Futhark binary'
+author: 'Leopold Luley <git@leopoldluley.de>'
 inputs:
-  milliseconds: # change this
+  version:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'Futhark version to install'
 runs:
   using: 'node16'
   main: 'dist/index.js'
