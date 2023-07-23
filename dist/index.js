@@ -40,26 +40,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const exec = __importStar(__nccwpck_require__(1514));
 const tc = __importStar(__nccwpck_require__(7784));
-function getDownloadUrl(version) {
-    return `https://github.com/diku-dk/futhark/releases/download/v${version}/futhark-${version}-linux-x86_64.tar.xz`;
-}
-function download(version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const downloadPath = yield tc.downloadTool(getDownloadUrl(version));
-        const extractPath = yield tc.extractTar(downloadPath);
-        const binPath = `${extractPath}/bin/futhark`;
-        const cachedPath = yield tc.cacheFile(binPath, 'futhark', 'futhark', version);
-        return cachedPath;
-    });
-}
+const utils_1 = __nccwpck_require__(918);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const version = core.getInput('version');
             core.info(`Installing futhark@v${version}`);
-            core.startGroup('Install Furhatk');
+            core.startGroup('Install Futhark');
             core.info('Checking whether a cached binary exists');
             let toolPath = tc.find('futhark', version);
             if (toolPath) {
@@ -68,15 +56,15 @@ function run() {
             else {
                 core.info('Did not find binary in cache');
                 core.info('Starting download');
-                toolPath = yield download(version);
+                toolPath = yield (0, utils_1.download)(version);
                 core.info('Finished download and caching');
             }
             core.info(`Adding ${toolPath} to PATH`);
             core.addPath(toolPath);
             core.endGroup();
             core.startGroup('Validate installation');
-            const smokeTestResult = yield exec.exec('futhark -V');
-            if (smokeTestResult !== 0) {
+            const smokeTestResult = yield (0, utils_1.smokeTest)();
+            if (smokeTestResult) {
                 core.setFailed(`Smoke test returned ${smokeTestResult}`);
             }
             core.endGroup();
@@ -88,6 +76,73 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 918:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.smokeTest = exports.download = void 0;
+const tc = __importStar(__nccwpck_require__(7784));
+const exec = __importStar(__nccwpck_require__(1514));
+function getDownloadUrl(version) {
+    return `https://github.com/diku-dk/futhark/releases/download/v${version}/futhark-${version}-linux-x86_64.tar.xz`;
+}
+function download(version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const downloadPath = yield tc.downloadTool(getDownloadUrl(version));
+        const extractPath = yield tc.extractTar(downloadPath, undefined, 'x');
+        const binPath = `${extractPath}/futhark-${version}-linux-x86_64/bin/futhark`;
+        const cachedPath = yield tc.cacheFile(binPath, 'futhark', 'futhark', version);
+        return cachedPath;
+    });
+}
+exports.download = download;
+function smokeTest(explicitPath = '') {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (explicitPath !== '') {
+            explicitPath = `${explicitPath}/`;
+        }
+        return exec.exec(`${explicitPath}futhark -V`);
+    });
+}
+exports.smokeTest = smokeTest;
 
 
 /***/ }),

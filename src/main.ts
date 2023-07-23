@@ -1,26 +1,13 @@
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
 import * as tc from '@actions/tool-cache'
-
-function getDownloadUrl(version: string): string {
-  return `https://github.com/diku-dk/futhark/releases/download/v${version}/futhark-${version}-linux-x86_64.tar.xz`
-}
-
-async function download(version: string): Promise<string> {
-  const downloadPath = await tc.downloadTool(getDownloadUrl(version))
-  const extractPath = await tc.extractTar(downloadPath)
-  const binPath = `${extractPath}/bin/futhark`
-  const cachedPath = await tc.cacheFile(binPath, 'futhark', 'futhark', version)
-
-  return cachedPath
-}
+import { download, smokeTest } from './utils'
 
 async function run(): Promise<void> {
   try {
     const version: string = core.getInput('version')
     core.info(`Installing futhark@v${version}`)
 
-    core.startGroup('Install Furhatk')
+    core.startGroup('Install Futhark')
     core.info('Checking whether a cached binary exists')
 
     let toolPath = tc.find('futhark', version);
@@ -37,8 +24,8 @@ async function run(): Promise<void> {
     core.endGroup()
 
     core.startGroup('Validate installation')
-    const smokeTestResult = await exec.exec('futhark -V')
-    if (smokeTestResult !== 0) {
+    const smokeTestResult = await smokeTest()
+    if (smokeTestResult) {
       core.setFailed(`Smoke test returned ${smokeTestResult}`);
     }
     core.endGroup()
