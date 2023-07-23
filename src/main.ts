@@ -9,7 +9,7 @@ function getDownloadUrl(version: string): string {
 async function download(version: string): Promise<string> {
   const downloadPath = await tc.downloadTool(getDownloadUrl(version))
   const extractPath = await tc.extractTar(downloadPath)
-  const binPath = extractPath + '/bin/futhark'
+  const binPath = `${extractPath}/bin/futhark`
   const cachedPath = await tc.cacheFile(binPath, 'futhark', 'futhark', version)
 
   return cachedPath
@@ -38,7 +38,7 @@ async function run(): Promise<void> {
 
     core.startGroup('Validate installation')
     const smokeTestResult = await exec.exec('futhark -V')
-    if (smokeTestResult != 0) {
+    if (smokeTestResult !== 0) {
       core.setFailed(`Smoke test returned ${smokeTestResult}`);
     }
     core.endGroup()

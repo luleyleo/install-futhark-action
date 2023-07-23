@@ -49,7 +49,7 @@ function download(version) {
     return __awaiter(this, void 0, void 0, function* () {
         const downloadPath = yield tc.downloadTool(getDownloadUrl(version));
         const extractPath = yield tc.extractTar(downloadPath);
-        const binPath = extractPath + '/bin/futhark';
+        const binPath = `${extractPath}/bin/futhark`;
         const cachedPath = yield tc.cacheFile(binPath, 'futhark', 'futhark', version);
         return cachedPath;
     });
@@ -76,7 +76,7 @@ function run() {
             core.endGroup();
             core.startGroup('Validate installation');
             const smokeTestResult = yield exec.exec('futhark -V');
-            if (smokeTestResult != 0) {
+            if (smokeTestResult !== 0) {
                 core.setFailed(`Smoke test returned ${smokeTestResult}`);
             }
             core.endGroup();
